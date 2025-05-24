@@ -1,35 +1,42 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-const studentNameInput = ref(null)
-const newStudentName = ref('')
-const newStudentAlamat = ref('')
-const students = ref([])
 
-// Computed Property
-const totalStudents = computed(() => students.value.length)
-const addStudent = () => {
-  if (!newStudentName.value.trim()) return // Cegah input kosong
-  students.value.push({
-    id: Date.now(), 
-    name: newStudentName.value,
-    alamat: newStudentAlamat.value.trim() || 'Alamat tidak diinputkan', //default
+// Referensi dan reaktivitas
+const inputNamaMahasiswa = ref(null)
+const namaBaru = ref('')
+const alamatBaru = ref('')
+const daftarMahasiswa = ref([])
+
+// Computed Property: menghitung total mahasiswa
+const totalMahasiswa = computed(() => daftarMahasiswa.value.length)
+
+// Fungsi untuk menambahkan mahasiswa
+const tambahMahasiswa = () => {
+  if (!namaBaru.value.trim()) return // Cegah input kosong
+  daftarMahasiswa.value.push({
+    id: Date.now(),
+    nama: namaBaru.value,
+    alamat: alamatBaru.value.trim() || 'Alamat tidak diinputkan', // default
   })
   // Reset input setelah menambah data
-  newStudentName.value = ''
-  newStudentAlamat.value = ''
-  studentNameInput.value.focus()
+  namaBaru.value = ''
+  alamatBaru.value = ''
+  inputNamaMahasiswa.value.focus()
 }
+
 // Fungsi untuk menghapus mahasiswa berdasarkan id
-const removeStudent = (id) => {
-  students.value = students.value.filter(s => s.id !== id)
+const hapusMahasiswa = (id) => {
+  daftarMahasiswa.value = daftarMahasiswa.value.filter(m => m.id !== id)
 }
-// Lifecycle Hook onMounted: Fokuskan input nama saat komponen sudah dimuat
+
+// Lifecycle: fokus ke input nama saat komponen dimuat
 onMounted(() => {
-  studentNameInput.value.focus()
+  inputNamaMahasiswa.value.focus()
 })
-// Watcher: Memantau perubahan nilai input nama mahasiswa
-watch(newStudentName, (newVal, oldVal) => {
-  console.log(`Nama berubah dari "${oldVal}" ke "${newVal}"`)
+
+// Watcher: memantau perubahan nilai nama mahasiswa
+watch(namaBaru, (nilaiBaru, nilaiLama) => {
+  console.log(`Nama berubah dari "${nilaiLama}" ke "${nilaiBaru}"`)
 })
 </script>
 
@@ -37,26 +44,27 @@ watch(newStudentName, (newVal, oldVal) => {
   <div class="form-wrapper">
     <h2>Todo-List Absensi</h2>
     <input
-      v-model="newStudentName"
-      ref="studentNameInput"
+      v-model="namaBaru"
+      ref="inputNamaMahasiswa"
       placeholder="Nama mahasiswa"
       class="form-input"
     />
     <input
-      v-model="newStudentAlamat"
+      v-model="alamatBaru"
       placeholder="Alamat mahasiswa"
       class="form-input"
     />
-    <button @click="addStudent" class="form-button">Daftar</button>
-    <!-- List Rendering -->
+    <button @click="tambahMahasiswa" class="form-button">Daftar</button>
+    
+    <!-- Menampilkan daftar mahasiswa -->
     <ol>
-      <li v-for="student in students" :key="student.id" class="student-item">
-        {{ student.name }} - {{ student.alamat }}
-        <!-- Tombol hapus -->
-        <button @click="removeStudent(student.id)" class="delete-button">Hapus</button>
+      <li v-for="mahasiswa in daftarMahasiswa" :key="mahasiswa.id" class="student-item">
+        {{ mahasiswa.nama }} - {{ mahasiswa.alamat }}
+        <button @click="hapusMahasiswa(mahasiswa.id)" class="delete-button">Hapus</button>
       </li>
     </ol>
-    <p>Total mahasiswa: {{ totalStudents }}</p>
+
+    <p>Total mahasiswa: {{ totalMahasiswa }}</p>
   </div>
 </template>
 
